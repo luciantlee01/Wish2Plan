@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { AppSidebar } from "@/components/app-sidebar"
 import { auth } from "@/lib/auth-server"
+import { AppLayoutWrapper } from "@/components/app-layout-wrapper"
 
 export default async function AppLayout({
   children,
@@ -16,11 +17,9 @@ export default async function AppLayout({
   return (
     <div className="flex h-screen overflow-hidden">
       <AppSidebar />
-      <main className="flex-1 overflow-y-auto pt-16 lg:pt-0 scrollbar-thin">
-        <div className="w-full px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8 max-w-7xl mx-auto">
-          {children}
-        </div>
-      </main>
+      <AppLayoutWrapper>
+        {children}
+      </AppLayoutWrapper>
     </div>
   )
 }

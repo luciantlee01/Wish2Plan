@@ -33,6 +33,8 @@ export default function MapPage() {
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [showLegend, setShowLegend] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const markersRef = useRef<any[]>([])
 
   useEffect(() => {
@@ -51,14 +53,33 @@ export default function MapPage() {
       style: "mapbox://styles/mapbox/streets-v12",
       center: [-74.006, 40.7128],
       zoom: 10,
+      attributionControl: false, // We'll add custom attribution
     })
+
+    // Add custom attribution
+    map.current.addControl(new mapboxgl.AttributionControl({
+      compact: true,
+    }), 'bottom-right')
 
     // Wait for map to load before adding markers
     map.current.on("load", () => {
       console.log("Map loaded successfully")
+      // Resize map to ensure proper rendering
+      map.current?.resize()
     })
 
+    // Handle resize
+    const handleResize = () => {
+      if (map.current) {
+        setTimeout(() => {
+          map.current?.resize()
+        }, 100)
+      }
+    }
+    window.addEventListener("resize", handleResize)
+
     return () => {
+      window.removeEventListener("resize", handleResize)
       map.current?.remove()
     }
   }, [])
@@ -200,6 +221,28 @@ export default function MapPage() {
   }, [ideas])
 
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
+  // Resize map when container size changes
+  useEffect(() => {
+    if (map.current && mapContainer.current) {
+      const resizeObserver = new ResizeObserver(() => {
+        setTimeout(() => {
+          map.current?.resize()
+        }, 100)
+      })
+      resizeObserver.observe(mapContainer.current)
+      return () => resizeObserver.disconnect()
+    }
+  }, [map.current])
+
   const fetchIdeas = async () => {
     try {
       const params = new URLSearchParams()
@@ -220,20 +263,51 @@ export default function MapPage() {
     }
   }
 
+  const [showLegend, setShowLegend] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
+  // Resize map when container size changes
+  useEffect(() => {
+    if (map.current) {
+      const resizeObserver = new ResizeObserver(() => {
+        map.current?.resize()
+      })
+      if (mapContainer.current) {
+        resizeObserver.observe(mapContainer.current)
+      }
+      return () => resizeObserver.disconnect()
+    }
+  }, [map.current])
+
   return (
-    <div className="flex w-full h-full">
-      <div className="flex-1 relative w-full h-full">
-        <div ref={mapContainer} className="w-full h-full" />
-        <div className="absolute top-4 left-4 z-10 space-y-4">
-          <Card className="w-64">
-            <CardHeader>
-              <CardTitle>Filters</CardTitle>
+    <div className="flex flex-col lg:flex-row w-full h-[calc(100vh-4rem)] lg:h-screen">
+      <div className="flex-1 relative w-full h-full min-h-[400px]">
+        <div ref={mapContainer} className="w-full h-full absolute inset-0" />
+        
+        {/* Filters - Mobile: top bar, Desktop: left side */}
+        <div className={`absolute z-10 ${
+          isMobile 
+            ? "top-2 left-2 right-2" 
+            : "top-4 left-4"
+        }`}>
+          <Card className={isMobile ? "w-full" : "w-64"}>
+            <CardHeader className={isMobile ? "pb-3" : ""}>
+              <CardTitle className="text-base sm:text-lg">Filters</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className={`space-y-3 ${isMobile ? "pb-3" : ""}`}>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Category</label>
+                <label className="text-xs sm:text-sm font-medium">Category</label>
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 sm:h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -245,9 +319,9 @@ export default function MapPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Status</label>
+                <label className="text-xs sm:text-sm font-medium">Status</label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 sm:h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -260,95 +334,156 @@ export default function MapPage() {
               </div>
             </CardContent>
           </Card>
-
-          <Card className="w-64">
-            <CardHeader>
-              <CardTitle>Legend</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <div className="w-6 h-6 rounded-full bg-red-500 border-2 border-white flex items-center justify-center text-xs">
-                  💕
-                </div>
-                <span>Date</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <div className="w-6 h-6 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-xs">
-                  🎁
-                </div>
-                <span>Gift</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <div className="w-6 h-6 rounded-full bg-green-500 border-2 border-white flex items-center justify-center text-xs">
-                  🍽️
-                </div>
-                <span>Meal</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Click a marker to see details
-              </p>
-            </CardContent>
-          </Card>
         </div>
+
+        {/* Legend - Mobile: collapsible button, Desktop: always visible */}
+        {isMobile ? (
+          <div className="absolute bottom-4 right-4 z-10">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowLegend(!showLegend)}
+              className="shadow-lg"
+            >
+              {showLegend ? "Hide" : "Legend"}
+            </Button>
+            {showLegend && (
+              <Card className="absolute bottom-12 right-0 w-48 shadow-lg">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">Legend</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-5 h-5 rounded-full bg-red-500 border-2 border-white flex items-center justify-center text-[10px] flex-shrink-0">
+                      💕
+                    </div>
+                    <span>Date</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-5 h-5 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-[10px] flex-shrink-0">
+                      🎁
+                    </div>
+                    <span>Gift</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-5 h-5 rounded-full bg-green-500 border-2 border-white flex items-center justify-center text-[10px] flex-shrink-0">
+                      🍽️
+                    </div>
+                    <span>Meal</span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        ) : (
+          <div className="absolute top-4 left-[280px] z-10">
+            <Card className="w-48">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Legend</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-red-500 border-2 border-white flex items-center justify-center text-xs flex-shrink-0">
+                    💕
+                  </div>
+                  <span>Date</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-xs flex-shrink-0">
+                    🎁
+                  </div>
+                  <span>Gift</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-green-500 border-2 border-white flex items-center justify-center text-xs flex-shrink-0">
+                    🍽️
+                  </div>
+                  <span>Meal</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Click a marker to see details
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
+      {/* Selected Idea Panel - Mobile: modal overlay, Desktop: side panel */}
       {selectedIdea && (
-        <div className="w-96 border-l bg-background overflow-auto">
-          <Card className="border-0 rounded-none h-full">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-xl">{selectedIdea.title}</CardTitle>
-                  {selectedIdea.description && (
-                    <CardDescription className="mt-2">
-                      {selectedIdea.description}
-                    </CardDescription>
-                  )}
+        <>
+          {isMobile && (
+            <div
+              className="fixed inset-0 bg-black/50 z-50"
+              onClick={() => setSelectedIdea(null)}
+            />
+          )}
+          <div
+            className={`${
+              isMobile
+                ? "fixed inset-x-4 bottom-4 top-20 z-50 max-h-[70vh]"
+                : "w-96 border-l bg-background"
+            } overflow-auto shadow-lg lg:shadow-none`}
+          >
+            <Card className={`${isMobile ? "h-full" : "border-0 rounded-none h-full"}`}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 pr-2">
+                    <CardTitle className="text-lg sm:text-xl">{selectedIdea.title}</CardTitle>
+                    {selectedIdea.description && (
+                      <CardDescription className="mt-2 line-clamp-3">
+                        {selectedIdea.description}
+                      </CardDescription>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setSelectedIdea(null)}
+                    className="p-1 hover:bg-accent rounded transition-colors flex-shrink-0"
+                    aria-label="Close"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
-                <button
-                  onClick={() => setSelectedIdea(null)}
-                  className="p-1 hover:bg-accent rounded transition-colors"
-                  aria-label="Close"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2">
-                <Badge 
-                  variant="secondary"
-                  className={
-                    selectedIdea.category === "DATE" ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200" :
-                    selectedIdea.category === "GIFT" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" :
-                    selectedIdea.category === "MEAL" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" :
-                    ""
-                  }
-                >
-                  {selectedIdea.category}
-                </Badge>
-                <Badge variant="outline">{selectedIdea.status}</Badge>
-              </div>
-              {selectedIdea.placeName && (
-                <div>
-                  <p className="text-sm font-medium mb-1">📍 Location</p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedIdea.placeName}
-                  </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex gap-2 flex-wrap">
+                  <Badge
+                    variant="secondary"
+                    className={
+                      selectedIdea.category === "DATE"
+                        ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                        : selectedIdea.category === "GIFT"
+                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                        : selectedIdea.category === "MEAL"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                        : ""
+                    }
+                  >
+                    {selectedIdea.category}
+                  </Badge>
+                  <Badge variant="outline">{selectedIdea.status}</Badge>
                 </div>
-              )}
-              <div className="pt-4 border-t">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => window.location.href = `/app/ideas/${selectedIdea.id}`}
-                >
-                  View Full Details
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                {selectedIdea.placeName && (
+                  <div>
+                    <p className="text-sm font-medium mb-1">📍 Location</p>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedIdea.placeName}
+                    </p>
+                  </div>
+                )}
+                <div className="pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => (window.location.href = `/app/ideas/${selectedIdea.id}`)}
+                  >
+                    View Full Details
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
     </div>
   )
