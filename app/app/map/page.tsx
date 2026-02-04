@@ -263,31 +263,6 @@ export default function MapPage() {
     }
   }
 
-  const [showLegend, setShowLegend] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
-
-  // Resize map when container size changes
-  useEffect(() => {
-    if (map.current) {
-      const resizeObserver = new ResizeObserver(() => {
-        map.current?.resize()
-      })
-      if (mapContainer.current) {
-        resizeObserver.observe(mapContainer.current)
-      }
-      return () => resizeObserver.disconnect()
-    }
-  }, [map.current])
-
   return (
     <div className="flex flex-col lg:flex-row w-full h-[calc(100vh-4rem)] lg:h-screen">
       <div className="flex-1 relative w-full h-full min-h-[400px]">
