@@ -68,13 +68,15 @@ export default function IdeasPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-8 flex items-center justify-between">
+    <div className="w-full">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Ideas</h1>
-          <p className="text-muted-foreground">Manage your saved ideas</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Ideas</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
+            Manage your saved ideas
+          </p>
         </div>
-        <Button asChild>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/app/ideas/new">
             <Plus className="mr-2 h-4 w-4" />
             New Idea
@@ -82,18 +84,18 @@ export default function IdeasPage() {
         </Button>
       </div>
 
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search ideas..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            className="pl-9 h-10 sm:h-11"
           />
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px] h-10 sm:h-11">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -104,7 +106,7 @@ export default function IdeasPage() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px] h-10 sm:h-11">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -117,46 +119,59 @@ export default function IdeasPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12">Loading...</div>
+        <div className="text-center py-12 sm:py-16 text-muted-foreground">
+          Loading...
+        </div>
       ) : ideas.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-muted-foreground mb-4">No ideas found</p>
+          <CardContent className="flex flex-col items-center justify-center py-12 sm:py-16">
+            <p className="text-sm sm:text-base text-muted-foreground mb-4">
+              No ideas found
+            </p>
             <Button asChild>
               <Link href="/app/ideas/new">Create your first idea</Link>
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {ideas.map((idea) => (
-            <Card key={idea.id} className="cursor-pointer hover:shadow-md transition-shadow">
-              <Link href={`/app/ideas/${idea.id}`}>
+            <Card
+              key={idea.id}
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] overflow-hidden"
+            >
+              <Link href={`/app/ideas/${idea.id}`} className="block">
                 {idea.imageUrl && (
-                  <div className="relative h-48 w-full">
+                  <div className="relative h-40 sm:h-48 w-full overflow-hidden">
                     <Image
                       src={idea.imageUrl}
                       alt={idea.title}
                       fill
-                      className="object-cover rounded-t-lg"
+                      className="object-cover"
                     />
                   </div>
                 )}
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg flex-1">{idea.title}</CardTitle>
-                    <div className="flex gap-1 flex-shrink-0">
-                      <Badge variant="secondary">{idea.category}</Badge>
-                      <Badge variant="outline">{idea.status}</Badge>
+                <CardHeader className={idea.imageUrl ? "" : "pb-3"}>
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                    <CardTitle className="text-base sm:text-lg flex-1 line-clamp-2">
+                      {idea.title}
+                    </CardTitle>
+                    <div className="flex gap-1 flex-wrap sm:flex-nowrap flex-shrink-0">
+                      <Badge variant="secondary" className="text-xs">
+                        {idea.category}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {idea.status}
+                      </Badge>
                     </div>
                   </div>
                   {idea.description && (
-                    <CardDescription className="line-clamp-2">
+                    <CardDescription className="line-clamp-2 text-sm mt-1">
                       {idea.description}
                     </CardDescription>
                   )}
                   {idea.placeName && (
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs mt-1">
                       📍 {idea.placeName}
                     </CardDescription>
                   )}

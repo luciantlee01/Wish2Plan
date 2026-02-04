@@ -7,17 +7,19 @@ import Link from "next/link"
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-muted p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-3xl font-bold">Welcome to Wish2Plan</CardTitle>
-          <CardDescription>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-muted p-4 sm:p-6">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-2 text-center px-6 pt-8 pb-6">
+          <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Welcome to Wish2Plan
+          </CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Sign in to start saving and organizing your date ideas
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 px-6 pb-8">
           <Button
-            className="w-full"
+            className="w-full h-11 text-sm sm:text-base"
             onClick={() => signIn("github", { callbackUrl: "/app" })}
           >
             Sign in with GitHub
@@ -25,14 +27,14 @@ export default function LoginPage() {
           {process.env.NEXT_PUBLIC_GOOGLE_ENABLED === "true" && (
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full h-11 text-sm sm:text-base"
               onClick={() => signIn("google", { callbackUrl: "/app" })}
             >
               Sign in with Google
             </Button>
           )}
-          <div className="text-center text-sm text-muted-foreground">
-            <Link href="/" className="underline">
+          <div className="text-center text-sm text-muted-foreground pt-2">
+            <Link href="/" className="underline hover:text-foreground transition-colors">
               Back to home
             </Link>
           </div>
