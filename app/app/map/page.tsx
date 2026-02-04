@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { X } from "lucide-react"
+import { X, Filter, SlidersHorizontal } from "lucide-react"
 
 interface Idea {
   id: string
@@ -34,6 +34,7 @@ export default function MapPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [showLegend, setShowLegend] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const markersRef = useRef<any[]>([])
 
@@ -268,48 +269,120 @@ export default function MapPage() {
       <div className="flex-1 relative w-full h-full min-h-[400px]">
         <div ref={mapContainer} className="w-full h-full absolute inset-0" />
         
-        {/* Filters - Mobile: top bar, Desktop: left side */}
-        <div className={`absolute z-10 ${
-          isMobile 
-            ? "top-2 left-2 right-2" 
-            : "top-4 left-4"
-        }`}>
-          <Card className={isMobile ? "w-full" : "w-64"}>
-            <CardHeader className={isMobile ? "pb-3" : ""}>
-              <CardTitle className="text-base sm:text-lg">Filters</CardTitle>
-            </CardHeader>
-            <CardContent className={`space-y-3 ${isMobile ? "pb-3" : ""}`}>
-              <div className="space-y-2">
-                <label className="text-xs sm:text-sm font-medium">Category</label>
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="h-9 sm:h-10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="DATE">Date</SelectItem>
-                    <SelectItem value="GIFT">Gift</SelectItem>
-                    <SelectItem value="MEAL">Meal</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs sm:text-sm font-medium">Status</label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="h-9 sm:h-10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="SAVED">Saved</SelectItem>
-                    <SelectItem value="PLANNED">Planned</SelectItem>
-                    <SelectItem value="DONE">Done</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Filters - Mobile: button with dropdown, Desktop: always visible card */}
+        {isMobile ? (
+          <>
+            <div className="absolute top-2 left-2 z-10">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="shadow-lg"
+              >
+                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                Filters
+              </Button>
+            </div>
+            {showFilters && (
+              <>
+                <div
+                  className="fixed inset-0 bg-black/50 z-40"
+                  onClick={() => setShowFilters(false)}
+                />
+                <Card className="absolute top-12 left-2 right-2 z-50 shadow-xl max-h-[60vh] overflow-y-auto">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">Filters</CardTitle>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowFilters(false)}
+                        className="h-6 w-6 p-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4 pb-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Category</label>
+                      <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                        <SelectTrigger className="h-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Categories</SelectItem>
+                          <SelectItem value="DATE">Date</SelectItem>
+                          <SelectItem value="GIFT">Gift</SelectItem>
+                          <SelectItem value="MEAL">Meal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Status</label>
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="h-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="SAVED">Saved</SelectItem>
+                          <SelectItem value="PLANNED">Planned</SelectItem>
+                          <SelectItem value="DONE">Done</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      variant="default"
+                      className="w-full"
+                      onClick={() => setShowFilters(false)}
+                    >
+                      Apply Filters
+                    </Button>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </>
+        ) : (
+          <div className="absolute top-4 left-4 z-10">
+            <Card className="w-64">
+              <CardHeader>
+                <CardTitle className="text-base sm:text-lg">Filters</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Category</label>
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="DATE">Date</SelectItem>
+                      <SelectItem value="GIFT">Gift</SelectItem>
+                      <SelectItem value="MEAL">Meal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Status</label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="SAVED">Saved</SelectItem>
+                      <SelectItem value="PLANNED">Planned</SelectItem>
+                      <SelectItem value="DONE">Done</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Legend - Mobile: collapsible button, Desktop: always visible */}
         {isMobile ? (
