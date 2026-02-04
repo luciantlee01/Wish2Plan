@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export function extractUrls(text: string): string[] {
   const urlRegex = /(https?:\/\/[^\s]+)/g
   const matches = text.match(urlRegex)
-  return matches ? [...new Set(matches)] : []
+  return matches ? Array.from(new Set(matches)) : []
 }
 
 export function getSourceFromUrl(url: string): 'TIKTOK' | 'INSTAGRAM' | 'OTHER' {

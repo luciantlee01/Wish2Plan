@@ -28,12 +28,12 @@ interface Idea {
 
 export default function MapPage() {
   const mapContainer = useRef<HTMLDivElement>(null)
-  const map = useRef<mapboxgl.Map | null>(null)
+  const map = useRef<any>(null)
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
-  const markersRef = useRef<mapboxgl.Marker[]>([])
+  const markersRef = useRef<any[]>([])
 
   useEffect(() => {
     if (!mapContainer.current) return
@@ -179,7 +179,7 @@ export default function MapPage() {
       })
 
       // Fit map to bounds if there are markers
-      if (ideasWithCoords.length > 0) {
+      if (ideasWithCoords.length > 0 && map.current) {
         const bounds = new mapboxgl.LngLatBounds()
         ideasWithCoords.forEach((idea) => {
           bounds.extend([idea.lng!, idea.lat!])

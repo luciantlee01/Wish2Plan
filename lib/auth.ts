@@ -1,13 +1,12 @@
-import { NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import GitHubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
 import { db } from "./db"
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   adapter: PrismaAdapter(db) as any,
   session: {
-    strategy: "database",
+    strategy: "database" as const,
   },
   providers: [
     GitHubProvider({
@@ -24,13 +23,13 @@ export const authOptions: NextAuthOptions = {
       : []),
   ],
   callbacks: {
-    session: async ({ session, user }) => {
+    session: async ({ session, user }: { session: any; user: any }) => {
       if (session?.user && user) {
         session.user.id = user.id
       }
       return session
     },
-    async redirect({ url, baseUrl }) {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       // If there's a callbackUrl in the URL, use it
       if (url.includes("callbackUrl")) {
         const urlObj = new URL(url, baseUrl)

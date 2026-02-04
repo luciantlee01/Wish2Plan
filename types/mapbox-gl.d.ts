@@ -1,4 +1,2 @@
-declare module "mapbox-gl" {
-  export * from "@types/mapbox-gl"
-}
-
+// Type declarations for mapbox-gl
+// The @types/mapbox-gl package provides the types
