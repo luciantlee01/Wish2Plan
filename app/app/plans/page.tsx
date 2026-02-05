@@ -303,11 +303,13 @@ export default function PlansPage() {
     }
   }
 
+  // Filter ideas based on search query
   const filteredIdeas = ideas.filter(
     (idea) =>
       idea.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (idea.description && idea.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
+      (idea.description &&
+        idea.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   return (
     <div className="w-full">
