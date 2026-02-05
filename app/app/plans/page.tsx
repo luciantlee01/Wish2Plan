@@ -88,11 +88,26 @@ export default function PlansPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      // Convert datetime-local to ISO string
+      const scheduledForISO = formData.scheduledFor
+        ? new Date(formData.scheduledFor).toISOString()
+        : null
+
+      if (!scheduledForISO) {
+        toast({
+          title: "Error",
+          description: "Please provide a valid date and time",
+          variant: "destructive",
+        })
+        return
+      }
+
       const res = await fetch("/api/plans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
+          title: formData.title,
+          scheduledFor: scheduledForISO,
           notes: formData.notes || null,
         }),
       })
@@ -223,13 +238,28 @@ export default function PlansPage() {
 
     setItineraryLoading(true)
     try {
+      // Convert datetime-local to ISO string
+      const scheduledForISO = formData.scheduledFor
+        ? new Date(formData.scheduledFor).toISOString()
+        : null
+
+      if (!scheduledForISO) {
+        toast({
+          title: "Error",
+          description: "Please provide a valid date and time",
+          variant: "destructive",
+        })
+        setItineraryLoading(false)
+        return
+      }
+
       // Create the plan
       const planRes = await fetch("/api/plans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: formData.title,
-          scheduledFor: formData.scheduledFor,
+          scheduledFor: scheduledForISO,
           notes: formData.notes || null,
         }),
       })
