@@ -138,11 +138,16 @@ export default function PlansPage() {
     setSelectedIdeas(newSelected)
   }
 
-  const handleSelectAll = () => {
-    const filtered = ideas.filter((idea) =>
+  const getFilteredIdeas = () => {
+    return ideas.filter((idea) =>
       idea.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (idea.description && idea.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      (idea.description &&
+        idea.description.toLowerCase().includes(searchQuery.toLowerCase()))
     )
+  }
+
+  const handleSelectAll = () => {
+    const filtered = getFilteredIdeas()
     if (selectedIdeas.size === filtered.length) {
       setSelectedIdeas(new Set())
     } else {
@@ -303,13 +308,7 @@ export default function PlansPage() {
     }
   }
 
-  // Filter ideas based on search query
-  const filteredIdeas = ideas.filter(
-    (idea) =>
-      idea.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (idea.description &&
-        idea.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredIdeas = getFilteredIdeas()
 
   return (
     <div className="w-full">
@@ -466,51 +465,52 @@ export default function PlansPage() {
                 New Plan
               </Button>
             </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Plan</DialogTitle>
-              <DialogDescription>
-                Schedule a date and add ideas to it
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="scheduledFor">Date & Time *</Label>
-                <Input
-                  id="scheduledFor"
-                  type="datetime-local"
-                  value={formData.scheduledFor}
-                  onChange={(e) => setFormData({ ...formData, scheduledFor: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  rows={3}
-                />
-              </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">Create</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Plan</DialogTitle>
+                <DialogDescription>
+                  Schedule a date and add ideas to it
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Title *</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="scheduledFor">Date & Time *</Label>
+                  <Input
+                    id="scheduledFor"
+                    type="datetime-local"
+                    value={formData.scheduledFor}
+                    onChange={(e) => setFormData({ ...formData, scheduledFor: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    rows={3}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">Create</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {loading ? (
@@ -587,4 +587,3 @@ export default function PlansPage() {
     </div>
   )
 }
-
